@@ -16,6 +16,9 @@ class DataLoader:
             self.filename_list.append(os.path.join(path_images, name))
         self.filename_list.sort()
 
+    def __len__(self):
+        return len(self.filename_list)
+
     def run(self):
         assert len(self.filename_list) != 0
         batch_data = []
@@ -30,7 +33,10 @@ class DataLoader:
             batch_data.append(image)
 
         self.next_batch += self.batch_size
-        return np.asarray(batch_data)
+        if self.next_batch > self.__len__():
+            self.next_batch = 0
+
+        return np.asarray(batch_data), self.__len__()
 
 
 if __name__ == '__main__':

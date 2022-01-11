@@ -3,7 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="f1a97385-8988-48e0-bbb9-e3bdde5bc897" name="Changes" comment="ignore">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/moduls/unet_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/moduls/unet_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_images/_result.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/test_images/_result.jpg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,7 +25,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.unet_model">
+  <component name="RunManager" selected="Python.main">
     <configuration name="dataloader" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Cartoonizer" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -89,9 +91,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main" />
         <item itemvalue="Python.unet_model" />
         <item itemvalue="Python.dataloader" />
-        <item itemvalue="Python.main" />
       </list>
     </recent_temporary>
   </component>
