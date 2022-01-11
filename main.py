@@ -158,7 +158,7 @@ class Trainer:
 
 
 if __name__ == '__main__':
-    pc = False
+    pc = True
     if pc:
         real_face = "dataset/faces"
         cartoon_faces = "dataset/cartoon_faces"
@@ -175,8 +175,8 @@ if __name__ == '__main__':
         cartoon_scenery = "/content/drive/MyDrive/dataset/cartoon_scenery"
         train = Trainer(real_face, cartoon_faces,
                         real_scenery, cartoon_scenery,
-                        image_shape=128, epochs=5,
-                        batch_size=6, channels=8, use_parallel=False)
+                        image_shape=256, epochs=5,
+                        batch_size=32, channels=8, use_parallel=False)
 
     train.train_step()
     """
