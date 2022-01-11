@@ -38,8 +38,6 @@ class Trainer:
         self.channels = channels
         self.use_parallel = use_parallel
 
-        self.loss_min = 2.0
-
         self.vgg = VGG19Content()
 
         # GAN Model
@@ -141,16 +139,16 @@ class Trainer:
                     gradients_of_discriminator = disc_tape.gradient(d_loss, self.disc_sn.trainable_variables)
                     self.d_optimizer.apply_gradients(zip(gradients_of_discriminator, self.disc_sn.trainable_variables))
 
-                    pbar.set_description("Epoch {} || g_loss_total: {} || d_loss_total: {}".format(epoch,
-                                                                                                   g_loss,
-                                                                                                   d_loss))
-
-                    if d_loss < self.loss_min:
+                    pbar.set_description("Epoch {} || g_loss: {} || d_loss: {}".format(epoch,
+                                                                                       g_loss,
+                                                                                       d_loss))
+                    if iterator % 10 == 0:
                         results = self.generator(input_photo)
                         write_batch_image(results, os.path.join(HOME, "test_images"), "_result.jpg", 1)
+
+                    if epoch % 5 == 0:
                         self.ckpt_gen_manager.save()
                         self.ckpt_disc_manager.save()
-                        self.loss_min = d_loss
 
             print("Epoch {} || g_loss_total: {} || d_loss_total: {}".format(epoch,
                                                                             g_loss_total / min_len,
