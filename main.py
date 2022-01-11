@@ -8,7 +8,7 @@ from dataloader import DataLoader
 from losses import vgg19, lsgan_loss, content_loss, total_variation_loss
 from utils.utils import write_batch_image, color_shift, simple_superpixel
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 HOME = os.getcwd()
 
 
