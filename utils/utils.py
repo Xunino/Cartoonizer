@@ -50,7 +50,7 @@ def simple_superpixel(batch_image, seg_num=200, sigma=1.2):
         return image
 
     num_job = np.shape(batch_image)[0]
-    batch_out = Parallel(n_jobs=num_job)(delayed(process_slic)(image) for image in batch_image)
+    batch_out = Parallel(n_jobs=num_job)(delayed(process_slic)(image) for image in batch_image.numpy())
     return np.array(batch_out)
 
 

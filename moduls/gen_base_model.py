@@ -1,5 +1,5 @@
 import tensorflow as tf
-from resnet_layer import ResnetBlock
+from .resnet_layer import ResnetBlock
 from tensorflow.keras.layers import Conv2D, LeakyReLU, Conv2DTranspose
 from tensorflow.keras import Model
 
