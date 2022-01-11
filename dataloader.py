@@ -24,7 +24,7 @@ class DataLoader:
             image = cv2.imread(batch[i])
             image = cv2.resize(image, dsize=(self.image_shape, self.image_shape), interpolation=cv2.INTER_AREA)
             h, w, c = np.shape(image)
-            h, w = (h // 12) * 12, (w // 12) * 12
+            h, w = (h // 8) * 8, (w // 8) * 8
             image = image[:h, :w, :]
             image = image.astype(np.float32) / 127.5 - 1
             batch_data.append(image)
@@ -34,7 +34,6 @@ class DataLoader:
 
 
 if __name__ == '__main__':
-    samples = "dataset/cartoons"
-    samples_1 = "dataset/cartoons"
-    print(DataLoader(samples).run())
-    print(DataLoader(samples_1).run())
+    samples = "dataset/faces"
+    loader = DataLoader(samples).run()
+    print(loader.shape)
