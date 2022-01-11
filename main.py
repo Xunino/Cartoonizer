@@ -153,14 +153,21 @@ class Trainer:
 
 
 if __name__ == '__main__':
-    real_face = "dataset/faces"
-    cartoon_faces = "dataset/cartoon_faces"
+    pc = False
+    if pc:
+        real_face = "dataset/faces"
+        cartoon_faces = "dataset/cartoon_faces"
+        real_scenery = "dataset/scenery"
+        cartoon_scenery = "dataset/cartoon_scenery"
+    else:
+        real_face = "/content/drive/MyDrive/dataset/faces"
+        cartoon_faces = "/content/drive/MyDrive/dataset/cartoon_faces"
+        real_scenery = "/content/drive/MyDrive/dataset/scenery"
+        cartoon_scenery = "/content/drive/MyDrive/dataset/cartoon_scenery"
 
-    real_scenery = "dataset/scenery"
-    cartoon_scenery = "dataset/cartoon_scenery"
     train = Trainer(real_face, cartoon_faces,
                     real_scenery, cartoon_scenery,
-                    image_shape=128, epochs=50,
-                    batch_size=4)
+                    image_shape=256, epochs=5,
+                    batch_size=16, channels=8)
 
     train.train_step()
