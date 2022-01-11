@@ -4,10 +4,10 @@ import numpy as np
 
 
 class DataLoader:
-    def __init__(self, path_images, image_shape=256, batch_size=32, next_batch=0):
+    def __init__(self, path_images, image_shape=256, batch_size=32):
         self.image_shape = image_shape
         self.batch_size = batch_size
-        self.next_batch = next_batch
+        self.next_batch = 0
         self.filename_list = []
         self.get_path(path_images)
 

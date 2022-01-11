@@ -1,9 +1,10 @@
 import tensorflow as tf
 from resnet_layer import ResnetBlock
 from tensorflow.keras.layers import Conv2D, LeakyReLU, Conv2DTranspose
+from tensorflow.keras import Model
 
 
-class Generator(tf.keras.Model):
+class Generator(Model):
     def __init__(self, channels=32, num_blocks=4, use_clip=False):
         super(Generator, self).__init__()
         self.num_blocks = num_blocks

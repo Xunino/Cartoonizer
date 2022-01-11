@@ -10,6 +10,38 @@ import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
+def resize_crop(image, size=1080):
+    h, w, c = np.shape(image)
+    if min(h, w) > 720:
+        if h > w:
+            h, w = int(size * h / w), size
+        else:
+            h, w = size, int(size * w / h)
+    image = cv2.resize(image, (w, h),
+                       interpolation=cv2.INTER_AREA)
+    h, w = (h // 12) * 12, (w // 12) * 12
+    image = image[:h, :w, :]
+    return image
+
+
+def write_batch_image(image, save_dir, name, n):
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    image = image.numpy()
+    fused_dir = os.path.join(save_dir, name)
+    fused_image = [0] * n
+    for i in range(n):
+        fused_image[i] = []
+        for j in range(n):
+            k = i * n + j
+            image[k] = (image[k] + 1) * 127.5
+            fused_image[i].append(image[k])
+        fused_image[i] = np.hstack(fused_image[i])
+    fused_image = np.vstack(fused_image)
+    cv2.imwrite(fused_dir, fused_image.astype(np.uint8))
+
+
 def simple_superpixel(batch_image, seg_num=200, sigma=1.2):
     def process_slic(image):
         seg_label = slic(image, n_segments=seg_num, sigma=sigma,

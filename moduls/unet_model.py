@@ -1,9 +1,12 @@
 import tensorflow as tf
 from .resnet_layer import ResnetBlock
+
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Layer
 from tensorflow.keras.layers import Conv2D, LeakyReLU
 
 
-class SmallNetEncode(tf.keras.layers.Layer):
+class SmallNetEncode(Layer):
     def __init__(self, channels, kernel_size=(3, 3), strides=1, padding="same", activation=None):
         super(SmallNetEncode, self).__init__()
         self.conv = Conv2D(channels,
@@ -18,7 +21,7 @@ class SmallNetEncode(tf.keras.layers.Layer):
         return self.activation(x)
 
 
-class SmallNetDecode(tf.keras.layers.Layer):
+class SmallNetDecode(Layer):
     def __init__(self, channels, kernel_size=(3, 3), strides=1, padding="same", activation=None, use_reshape=False):
         super(SmallNetDecode, self).__init__()
         self.use_reshape = use_reshape
@@ -40,7 +43,7 @@ class SmallNetDecode(tf.keras.layers.Layer):
         return self.activation(x)
 
 
-class Unet(tf.keras.Model):
+class Unet(Model):
     def __init__(self, channels=32, num_blocks=4, use_clip=False):
         super(Unet, self).__init__()
         self.num_blocks = num_blocks

@@ -1,8 +1,8 @@
-import tensorflow as tf
 from tensorflow.keras.layers import Conv2D, LeakyReLU
+from tensorflow.keras.layers import Layer
 
 
-class ResnetBlock(tf.keras.layers.Layer):
+class ResnetBlock(Layer):
     def __init__(self, out_channels=32):
         super(ResnetBlock, self).__init__()
         self.conv_1 = Conv2D(out_channels, kernel_size=(3, 3), padding="same", activation=None)
