@@ -97,7 +97,7 @@ class Unet(Model):
         x_4 = self.block_6_1(self.block_6(x_4, x_1))
 
         if self.use_clip:
-            x_4 = tf.clip_by_value(x_4, -1, 1)
+            x_4 = tf.clip_by_value(x_4, -1., 1.)
 
         return x_4
 

@@ -149,7 +149,7 @@ class Trainer:
                                                                                        d_loss))
                     if iterator % 10 == 0:
                         results = self.generator(input_photo)
-                        write_batch_image(results, os.path.join(HOME, "test_images"), "_result.jpg", 1)
+                        write_batch_image(results, os.path.join(HOME, "test_images"), f"{iterator}_result.jpg", 1)
 
                     if epoch % 5 == 0:
                         self.ckpt_gen_manager.save()
