@@ -10,6 +10,13 @@ import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
+def get_list_images(path_images):
+    filename_list = []
+    for name in os.listdir(path_images):
+        filename_list.append(os.path.join(path_images, name))
+    return filename_list
+
+
 def resize_crop(image, size=1080):
     h, w, c = np.shape(image)
     if min(h, w) > 720:

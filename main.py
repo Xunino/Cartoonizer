@@ -7,7 +7,7 @@ from moduls.discriminator_spectral_norm import DiscriminatorSN
 from utils.guided_fillter import guided_filter
 from dataloader import DataLoader
 from losses import VGG19Content, lsgan_loss, content_loss, total_variation_loss
-from utils.utils import write_batch_image, color_shift, simple_superpixel
+from utils.utils import write_batch_image, color_shift, simple_superpixel, get_list_images
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 HOME = os.getcwd()
@@ -74,28 +74,31 @@ class Trainer:
             d_loss_total = 0
 
             # Photo face and cartoon face
-            input_photo_face, len_photo_face = DataLoader(self.photo_face_path, image_shape=self.image_shape,
-                                                          batch_size=self.batch_size).run()
-            input_cartoon_face, len_cartoon_face = DataLoader(self.cartoon_face_path, image_shape=self.image_shape,
-                                                              batch_size=self.batch_size).run()
+            input_photo_face = DataLoader(get_list_images(self.photo_face_path),
+                                          image_shape=self.image_shape,
+                                          batch_size=self.batch_size)
+            input_cartoon_face = DataLoader(get_list_images(self.cartoon_face_path),
+                                            image_shape=self.image_shape,
+                                            batch_size=self.batch_size)
 
             # Photo scenery and cartoon scenery
-            input_photo_scenery, len_photo_scenery = DataLoader(self.photo_scenery_path, image_shape=self.image_shape,
-                                                                batch_size=self.batch_size).run()
-            input_cartoon_scenery, len_cartoon_scenery = DataLoader(self.cartoon_scenery_path,
-                                                                    image_shape=self.image_shape,
-                                                                    batch_size=self.batch_size).run()
+            input_photo_scenery = DataLoader(get_list_images(self.photo_scenery_path),
+                                             image_shape=self.image_shape,
+                                             batch_size=self.batch_size)
+            input_cartoon_scenery = DataLoader(get_list_images(self.cartoon_scenery_path),
+                                               image_shape=self.image_shape,
+                                               batch_size=self.batch_size)
 
-            min_len = min(len_photo_face, len_cartoon_face, len_photo_scenery,
-                          len_cartoon_scenery) // self.batch_size + 1
+            min_len = min(input_photo_face.__len__(), input_cartoon_face.__len__(), input_photo_scenery.__len__(),
+                          input_cartoon_scenery.__len__()) // self.batch_size + 1
             pbar = tqdm(range(min_len))
             for iterator in pbar:
                 if iterator % 5 == 0:
-                    input_photo = input_photo_face
-                    input_cartoon = input_cartoon_face
+                    input_photo = input_photo_face.run()
+                    input_cartoon = input_cartoon_face.run()
                 else:
-                    input_photo = input_photo_scenery
-                    input_cartoon = input_cartoon_scenery
+                    input_photo = input_photo_scenery.run()
+                    input_cartoon = input_cartoon_scenery.run()
 
                 with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
                     # Gen
