@@ -1,16 +1,13 @@
 import tensorflow as tf
 from .spectral_norm_layer import conv_spectral_norm
 from tensorflow.keras.layers import Layer
-from tensorflow.keras.layers import BatchNormalization, LeakyReLU, Dense
+from tensorflow.keras.layers import LeakyReLU, Dense
 
 
 class DiscriminatorSN(Layer):
     def __init__(self, channels=32):
         super(DiscriminatorSN, self).__init__()
         self.channels = channels
-
-        self.bn_1 = BatchNormalization(center=True, scale=True)
-        self.bn_2 = BatchNormalization(center=True, scale=True)
 
         self.activate_1 = LeakyReLU()
         self.activate_2 = LeakyReLU()

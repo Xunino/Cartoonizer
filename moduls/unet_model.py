@@ -103,6 +103,8 @@ class Unet(Model):
 
 
 if __name__ == '__main__':
-    samples = tf.random.uniform(shape=(10, 256, 256, 3), minval=0., maxval=1.)
+    import os
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+    samples = tf.random.uniform(shape=(64, 256, 256, 3), minval=0., maxval=1.)
     gen = Unet()
     assert gen(samples).shape == samples.shape

@@ -5,7 +5,7 @@ from moduls.unet_model import Unet
 from moduls.discriminator_spectral_norm import DiscriminatorSN
 from utils.guided_fillter import guided_filter
 from dataloader import DataLoader
-from losses import vgg19, lsgan_loss, content_loss, total_variation_loss
+from losses import VGG19Content, lsgan_loss, content_loss, total_variation_loss
 from utils.utils import write_batch_image, color_shift, simple_superpixel
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -36,6 +36,8 @@ class Trainer:
         self.channels = channels
 
         self.loss_min = 2.0
+
+        self.vgg = VGG19Content()
 
         # GAN Model
         self.generator = Unet(channels)
@@ -102,10 +104,10 @@ class Trainer:
                                                       blur_cartoon, blur_fake,
                                                       patch=True)
 
-                vgg_photo = vgg19(input_photo)
-                vgg_output = vgg19(output)
+                vgg_photo = self.vgg(input_photo)
+                vgg_output = self.vgg(output)
                 superpixel_out = simple_superpixel(output)
-                vgg_superpixel = vgg19(superpixel_out)
+                vgg_superpixel = self.vgg(superpixel_out)
 
                 photo_loss = content_loss(vgg_photo, vgg_output)
                 superpixel_loss = content_loss(vgg_superpixel, vgg_photo)

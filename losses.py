@@ -5,21 +5,25 @@ from tensorflow.keras.applications.vgg19 import VGG19
 VGG_MEAN = [103.939, 116.779, 123.68]
 
 
-def vgg19(x):
-    h, w, c = tf.shape(x)[1:4]
-    shape = (h, w, c)
-    rgb_scaled = (x + 1) * 127.5
-    blue, green, red = tf.split(axis=3, num_or_size_splits=3, value=rgb_scaled)
-    x = tf.concat(axis=3, values=[blue - VGG_MEAN[0],
-                                  green - VGG_MEAN[1], red - VGG_MEAN[2]])
+class VGG19Content:
+    def __init__(self):
+        pass
 
-    back_bone = VGG19(include_top=False, weights="imagenet", input_shape=shape)
-    for layer in back_bone.layers:
-        layer.trainable = False
+    def __call__(self, x, *args, **kwargs):
+        h, w, c = tf.shape(x)[1:4]
+        shape = (h, w, c)
+        rgb_scaled = (x + 1) * 127.5
+        blue, green, red = tf.split(axis=3, num_or_size_splits=3, value=rgb_scaled)
+        x = tf.concat(axis=3, values=[blue - VGG_MEAN[0],
+                                      green - VGG_MEAN[1], red - VGG_MEAN[2]])
 
-    model = Model(inputs=back_bone.input, outputs=back_bone.get_layer("block4_pool").output)
+        back_bone = VGG19(include_top=False, weights="imagenet", input_shape=shape)
+        for layer in back_bone.layers:
+            layer.trainable = False
 
-    return model(x)
+        model = Model(inputs=back_bone.input, outputs=back_bone.get_layer("block4_pool").output)
+
+        return model(x)
 
 
 def content_loss(real_photo, fake_photo):
