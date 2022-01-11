@@ -105,15 +105,20 @@ class Trainer:
                     blur_fake = guided_filter(output, output, r=5, eps=2e-1)
                     blur_cartoon = guided_filter(input_cartoon, input_cartoon, r=5, eps=2e-1)
 
+                    # Disc
                     gray_fake, gray_cartoon = color_shift(output, input_cartoon)
 
+                    # Loss structure for gen
                     d_loss_gray, g_loss_gray = lsgan_loss(self.disc_sn,
                                                           gray_cartoon, gray_fake,
                                                           patch=True)
+
+                    # Loss structure for disc
                     d_loss_blur, g_loss_blur = lsgan_loss(self.disc_sn,
                                                           blur_cartoon, blur_fake,
                                                           patch=True)
 
+                    # Loss content
                     vgg_photo = self.vgg(input_photo)
                     vgg_output = self.vgg(output)
                     superpixel_out = simple_superpixel(output, use_parallel=self.use_parallel)
@@ -121,8 +126,8 @@ class Trainer:
 
                     photo_loss = content_loss(vgg_photo, vgg_output)
                     superpixel_loss = content_loss(vgg_superpixel, vgg_photo)
-
                     recon_loss = photo_loss + superpixel_loss
+
                     tv_loss = total_variation_loss(output)
 
                     g_loss = 1e4 * tv_loss + 1e-1 * g_loss_blur + g_loss_gray + 2e2 * recon_loss
