@@ -72,8 +72,8 @@ class Trainer:
 
         # Start training
         for epoch in range(self.epochs + 1):
-            g_loss = 0
-            d_loss = 0
+            g_loss_total = 0
+            d_loss_total = 0
 
             # Photo face and cartoon face
             input_photo_face, len_photo_face = DataLoader(self.photo_face_path, image_shape=self.image_shape,
@@ -127,8 +127,11 @@ class Trainer:
                     recon_loss = photo_loss + superpixel_loss
                     tv_loss = total_variation_loss(output)
 
-                    g_loss += (1e4 * tv_loss + 1e-1 * g_loss_blur + g_loss_gray + 2e2 * recon_loss) / self.batch_size
-                    d_loss += (d_loss_blur + d_loss_gray) / self.batch_size
+                    g_loss = 1e4 * tv_loss + 1e-1 * g_loss_blur + g_loss_gray + 2e2 * recon_loss
+                    d_loss = d_loss_blur + d_loss_gray
+
+                    g_loss_total += g_loss
+                    d_loss_total += d_loss
 
                     # Generator
                     gradients_of_generator = gen_tape.gradient(g_loss, self.generator.trainable_variables)
@@ -149,11 +152,9 @@ class Trainer:
                         self.ckpt_disc_manager.save()
                         self.loss_min = d_loss
 
-            g_loss_total = g_loss / min_len
-            d_loss_total = d_loss / min_len
             print("Epoch {} || g_loss_total: {} || d_loss_total: {}".format(epoch,
-                                                                            g_loss_total,
-                                                                            d_loss_total))
+                                                                            g_loss_total / min_len,
+                                                                            d_loss_total / min_len))
 
 
 if __name__ == '__main__':
