@@ -42,14 +42,14 @@ def write_batch_image(image, save_dir, name, n):
     cv2.imwrite(fused_dir, fused_image.astype(np.uint8))
 
 
-def simple_superpixel(batch_image, seg_num=200, sigma=1.2):
+def simple_superpixel(batch_image, seg_num=200, sigma=1.2, num_job=4):
     def process_slic(image):
         seg_label = slic(image, n_segments=seg_num, sigma=sigma,
                          compactness=10, convert2lab=True)
         image = label2rgb(seg_label, image, kind='avg')
         return image
 
-    num_job = np.shape(batch_image)[0]
+    # num_job = np.shape(batch_image)[0]
     batch_out = Parallel(n_jobs=num_job)(delayed(process_slic)(image) for image in batch_image.numpy())
     return np.array(batch_out)
 
