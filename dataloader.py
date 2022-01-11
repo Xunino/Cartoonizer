@@ -22,7 +22,10 @@ class DataLoader:
         batch = self.filename_list[self.next_batch: self.next_batch + self.batch_size]
         for i in range(len(batch)):
             image = cv2.imread(batch[i])
-            image = cv2.resize(image, dsize=(self.image_shape, self.image_shape))
+            image = cv2.resize(image, dsize=(self.image_shape, self.image_shape), interpolation=cv2.INTER_AREA)
+            h, w, c = np.shape(image)
+            h, w = (h // 12) * 12, (w // 12) * 12
+            image = image[:h, :w, :]
             image = image.astype(np.float32) / 127.5 - 1
             batch_data.append(image)
 
