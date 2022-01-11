@@ -5,7 +5,7 @@ from tensorflow.keras.layers import BatchNormalization, LeakyReLU, Dense
 
 
 class DiscriminatorSN(Layer):
-    def __init__(self, channels=32, ):
+    def __init__(self, channels=32):
         super(DiscriminatorSN, self).__init__()
         self.channels = channels
 

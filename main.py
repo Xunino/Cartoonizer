@@ -137,10 +137,13 @@ class Trainer:
 
 
 if __name__ == '__main__':
-    real_samples = "dataset/photos"
-    cartoon_samples = "dataset/cartoons"
-    train = Trainer(real_samples, cartoon_samples,
-                    real_samples, cartoon_samples,
+    real_face = "dataset/faces"
+    cartoon_faces = "dataset/cartoon_faces"
+
+    real_scenery = "dataset/scenery"
+    cartoon_scenery = "dataset/cartoon_scenery"
+    train = Trainer(real_face, cartoon_faces,
+                    real_scenery, cartoon_scenery,
                     image_shape=256, epochs=5,
                     batch_size=2)
 
