@@ -91,7 +91,7 @@ class Trainer:
 
             min_len = min(input_photo_face.__len__(), input_cartoon_face.__len__(), input_photo_scenery.__len__(),
                           input_cartoon_scenery.__len__()) // self.batch_size + 1
-            pbar = tqdm(range(min_len))
+            pbar = tqdm(range(1, min_len + 1))
             for iterator in pbar:
                 if iterator % 5 == 0:
                     input_photo = input_photo_face.run()
@@ -150,8 +150,9 @@ class Trainer:
                     pbar.set_description("Epoch {} || g_loss: {} || d_loss: {}".format(epoch,
                                                                                        g_loss,
                                                                                        d_loss))
-                    if iterator % 10 == 0:
+                    if iterator % 10 == 0 or iterator % 2 == 0:
                         results = self.generator(input_photo)
+                        results = guided_filter(results, output, r=1)
                         write_batch_image(results, os.path.join(HOME, "test_images"), f"{iterator}_result.jpg", 1)
 
                     if epoch % 5 == 0:
@@ -182,7 +183,7 @@ if __name__ == '__main__':
         train = Trainer(real_face, cartoon_faces,
                         real_scenery, cartoon_scenery,
                         image_shape=256, epochs=5,
-                        batch_size=32, channels=8, use_parallel=False)
+                        batch_size=16, channels=8, use_parallel=False)
 
     train.train_step()
     """
