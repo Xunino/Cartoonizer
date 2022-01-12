@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications.vgg19 import VGG19
+from tensorflow.keras.applications.inception_v3 import InceptionV3
 
 VGG_MEAN = [103.939, 116.779, 123.68]
 
@@ -19,6 +20,27 @@ class VGG19Content:
 
         back_bone = VGG19(include_top=False, weights="imagenet", input_shape=shape)
         model = Model(inputs=back_bone.input, outputs=back_bone.get_layer("block4_pool").output)
+        for layer in model.layers:
+            layer.trainable = False
+
+        return model(x)
+
+
+class INCEPTIONContent:
+    def __init__(self):
+        pass
+
+    def __call__(self, x, *args, **kwargs):
+        h, w, c = tf.shape(x)[1:4]
+        shape = (h, w, c)
+        rgb_scaled = (x + 1) * 127.5
+        blue, green, red = tf.split(axis=3, num_or_size_splits=3, value=rgb_scaled)
+        x = tf.concat(axis=3, values=[blue - VGG_MEAN[0],
+                                      green - VGG_MEAN[1],
+                                      red - VGG_MEAN[2]])
+
+        back_bone = InceptionV3(include_top=False, weights="imagenet", input_shape=shape)
+        model = Model(inputs=back_bone.input, outputs=back_bone.get_layer("mixed7").output)
         for layer in model.layers:
             layer.trainable = False
 
@@ -46,3 +68,9 @@ def lsgan_loss(discriminator, real, fake, patch=True):
     d_loss = 0.5 * (tf.reduce_mean((real_logit - 1) ** 2) + tf.reduce_mean(fake_logit ** 2))
 
     return d_loss, g_loss
+
+
+if __name__ == '__main__':
+    samples = tf.random.uniform(shape=(1, 256, 256, 3), maxval=1.)
+    out = INCEPTIONContent()
+    print(out(samples))

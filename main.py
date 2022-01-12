@@ -6,7 +6,7 @@ from moduls.unet_model import Unet
 from moduls.discriminator_spectral_norm import DiscriminatorSN
 from utils.guided_fillter import guided_filter
 from dataloader import DataLoader
-from losses import VGG19Content, lsgan_loss, content_or_structure_loss, total_variation_loss
+from losses import VGG19Content, lsgan_loss, content_or_structure_loss, total_variation_loss, INCEPTIONContent
 from utils.utils import write_batch_image, color_shift, simple_superpixel, get_list_images
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -39,7 +39,7 @@ class Trainer:
         self.channels = channels
         self.use_parallel = use_parallel
 
-        self.vgg = VGG19Content()
+        self.high_level_features = INCEPTIONContent()
 
         # GAN Model
         self.generator = Unet(channels)
@@ -143,12 +143,12 @@ class Trainer:
                     tv_loss = total_variation_loss(output)
 
                     # input images
-                    vgg_photo = self.vgg(input_photo)
+                    vgg_photo = self.high_level_features(input_photo)
                     # fake images
-                    vgg_output = self.vgg(output)
+                    vgg_output = self.high_level_features(output)
                     # Superpixel images
                     superpixel_out = simple_superpixel(output, use_parallel=self.use_parallel)
-                    vgg_superpixel = self.vgg(superpixel_out)
+                    vgg_superpixel = self.high_level_features(superpixel_out)
 
                     """
                         Recon_loss = content_loss + structure_loss 
