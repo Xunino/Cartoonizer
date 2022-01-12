@@ -16,8 +16,8 @@ class DataLoader:
     def run(self):
         assert len(self.filename_list) != 0
         batch_data = []
-        filename_list = shuffle(self.filename_list, random_state=42)
-        batch = filename_list[self.next_batch: self.next_batch + self.batch_size]
+        self.filename_list = shuffle(self.filename_list, random_state=42)
+        batch = self.filename_list[self.next_batch: self.next_batch + self.batch_size]
         for i in range(len(batch)):
             image = cv2.imread(batch[i])
             image = cv2.resize(image, dsize=(self.image_shape, self.image_shape), interpolation=cv2.INTER_AREA)
@@ -37,7 +37,7 @@ class DataLoader:
 if __name__ == '__main__':
     from utils.utils import get_list_images
 
-    samples = "dataset/faces"
+    samples = "dataset/face_photo"
     loader = DataLoader(get_list_images(samples))
     for i in range(10):
         print(loader.run())

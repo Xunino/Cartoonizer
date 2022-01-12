@@ -3,8 +3,21 @@
   <component name="ChangeListManager">
     <list default="true" id="f1a97385-8988-48e0-bbb9-e3bdde5bc897" name="Changes" comment="ignore">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/cartoons/0020_result.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/cartoons/0021_result.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/cartoons/0023_result.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/cartoons/0024_result.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/cartoons/0025_result.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/cartoons/0026_result.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/photos/0020.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/photos/0021.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/photos/0022.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/photos/0023.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/photos/0024.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/photos/0025.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/photos/0026.jpg" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_images/_result.jpg" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

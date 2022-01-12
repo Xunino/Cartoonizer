@@ -12,8 +12,10 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 def get_list_images(path_images):
     filename_list = []
-    for name in os.listdir(path_images):
-        filename_list.append(os.path.join(path_images, name))
+    for roots, dirs_, filenames in os.walk(path_images):
+        for filename in filenames:
+            if filename.split(".")[-1].lower() in ["jpg", "png", "jpeg"]:
+                filename_list.append(os.path.join(roots, filename))
     return filename_list
 
 

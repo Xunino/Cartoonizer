@@ -161,7 +161,9 @@ class Trainer:
                     if iterator % 2 == 0:
                         results = self.generator(input_photo)
                         results = guided_filter(input_photo, results, r=1)
-                        write_batch_image(results, os.path.join(HOME, "test_images"), f"{iterator}_result.jpg", 1)
+                        saved_test = os.path.join(HOME, "test_images")
+                        os.makedirs(saved_test, exist_ok=True)
+                        write_batch_image(results, saved_test, f"{iterator}_result.jpg", 1)
 
                     if epoch % 5 == 0:
                         self.ckpt_gen_manager.save()
@@ -175,19 +177,19 @@ class Trainer:
 if __name__ == '__main__':
     pc = True
     if pc:
-        real_face = "dataset/faces"
-        cartoon_faces = "dataset/cartoon_faces"
-        real_scenery = "dataset/scenery"
-        cartoon_scenery = "dataset/cartoon_scenery"
+        real_face = "dataset/face_photo"
+        cartoon_faces = "dataset/face_cartoon"
+        real_scenery = "dataset/scenery_photo"
+        cartoon_scenery = "dataset/scenery_cartoon"
         train = Trainer(real_face, cartoon_faces,
                         real_scenery, cartoon_scenery,
                         image_shape=128, epochs=5,
-                        batch_size=6, channels=8, use_parallel=True, retrain=True)
+                        batch_size=4, channels=16, use_parallel=True, retrain=False)
     else:
-        real_face = "/content/drive/MyDrive/dataset/faces"
-        cartoon_faces = "/content/drive/MyDrive/dataset/cartoon_faces"
-        real_scenery = "/content/drive/MyDrive/dataset/scenery"
-        cartoon_scenery = "/content/drive/MyDrive/dataset/cartoon_scenery"
+        real_face = "/content/drive/MyDrive/dataset/face_photo"
+        cartoon_faces = "/content/drive/MyDrive/dataset/face_cartoon"
+        real_scenery = "/content/drive/MyDrive/dataset/scenery_photo"
+        cartoon_scenery = "/content/drive/MyDrive/dataset/scenery_cartoon"
         train = Trainer(real_face, cartoon_faces,
                         real_scenery, cartoon_scenery,
                         image_shape=256, epochs=5,
