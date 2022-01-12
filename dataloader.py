@@ -37,7 +37,7 @@ class DataLoader:
 if __name__ == '__main__':
     from utils.utils import get_list_images
 
-    samples = "dataset/face_photo"
+    samples = "dataset/face_cartoon"
     loader = DataLoader(get_list_images(samples))
     for i in range(10):
         print(loader.run())

@@ -26,7 +26,7 @@ class VGG19Content:
         return model(x)
 
 
-def content_loss(real_photo, fake_photo):
+def content_or_structure_loss(real_photo, fake_photo):
     h, w, c = tf.shape(real_photo)[1:]
     return tf.reduce_mean(tf.compat.v1.losses.absolute_difference(real_photo, fake_photo)) / float(h * w * c)
 

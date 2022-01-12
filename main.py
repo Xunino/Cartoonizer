@@ -6,7 +6,7 @@ from moduls.unet_model import Unet
 from moduls.discriminator_spectral_norm import DiscriminatorSN
 from utils.guided_fillter import guided_filter
 from dataloader import DataLoader
-from losses import VGG19Content, lsgan_loss, content_loss, total_variation_loss
+from losses import VGG19Content, lsgan_loss, content_or_structure_loss, total_variation_loss
 from utils.utils import write_batch_image, color_shift, simple_superpixel, get_list_images
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -111,36 +111,61 @@ class Trainer:
                 with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
                     # Gen
                     output = self.generator(input_photo)
-                    output = guided_filter(input_photo, output, r=1)
+                    output = guided_filter(input_photo, output, r=1)  # Smooth
 
+                    """
+                        Surface
+                    """
+                    # Surface output
                     blur_fake = guided_filter(output, output, r=5, eps=2e-1)
+
+                    # Surface cartoon
                     blur_cartoon = guided_filter(input_cartoon, input_cartoon, r=5, eps=2e-1)
 
-                    # Disc
-                    gray_fake, gray_cartoon = color_shift(output, input_cartoon)
-
-                    # Loss structure for gen
-                    d_loss_gray, g_loss_gray = lsgan_loss(self.disc_sn,
-                                                          gray_cartoon, gray_fake,
-                                                          patch=True)
-
-                    # Loss structure for disc
+                    # Loss surface using disc model
                     d_loss_blur, g_loss_blur = lsgan_loss(self.disc_sn,
                                                           blur_cartoon, blur_fake,
                                                           patch=True)
+                    """
+                        Texture loss
+                    """
+                    # Texture output and cartoon
+                    gray_fake, gray_cartoon = color_shift(output, input_cartoon)
 
-                    # Loss content
+                    # Loss texture using disc model
+                    d_loss_gray, g_loss_gray = lsgan_loss(self.disc_sn,
+                                                          gray_cartoon, gray_fake,
+                                                          patch=True)
+                    """
+                        Total variation loss
+                    """
+                    # Total variation loss
+                    tv_loss = total_variation_loss(output)
+
+                    # input images
                     vgg_photo = self.vgg(input_photo)
+                    # fake images
                     vgg_output = self.vgg(output)
+                    # Superpixel images
                     superpixel_out = simple_superpixel(output, use_parallel=self.use_parallel)
                     vgg_superpixel = self.vgg(superpixel_out)
 
-                    photo_loss = content_loss(vgg_photo, vgg_output)
-                    superpixel_loss = content_loss(vgg_superpixel, vgg_photo)
+                    """
+                        Recon_loss = content_loss + structure_loss 
+                    """
+                    # Content loss
+                    # Real vs Fake
+                    photo_loss = content_or_structure_loss(vgg_photo, vgg_output)
+
+                    # Structure loss
+                    # Fake vs Superpixel
+                    superpixel_loss = content_or_structure_loss(vgg_superpixel, vgg_photo)
                     recon_loss = photo_loss + superpixel_loss
 
-                    tv_loss = total_variation_loss(output)
-
+                    """
+                        - gen_loss
+                        - disc_loss
+                    """
                     g_loss = 1e4 * tv_loss + 1e-1 * g_loss_blur + g_loss_gray + 2e2 * recon_loss
                     d_loss = d_loss_blur + d_loss_gray
 
