@@ -1,10 +1,10 @@
 import tensorflow as tf
 from .spectral_norm_layer import conv_spectral_norm
-from tensorflow.keras.layers import Layer
 from tensorflow.keras.layers import LeakyReLU, Dense
+from tensorflow.keras.models import Model
 
 
-class DiscriminatorSN(Layer):
+class DiscriminatorSN(Model):
     def __init__(self, channels=32):
         super(DiscriminatorSN, self).__init__()
         self.channels = channels
