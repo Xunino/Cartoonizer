@@ -25,7 +25,8 @@ class Trainer:
                  learning_rate=2e-4,
                  channels=32,
                  batch_size=32,
-                 use_parallel=True):
+                 use_parallel=True,
+                 retrain=False):
         self.photo_face_path = photo_face_path
         self.cartoon_face_path = cartoon_face_path
 
@@ -65,6 +66,13 @@ class Trainer:
 
         self.ckpt_gen_manager = tf.train.CheckpointManager(ckpt_gen, self.saved_gen_weights, max_to_keep=2)
         self.ckpt_disc_manager = tf.train.CheckpointManager(ckpt_disc, self.saved_disc_weights, max_to_keep=2)
+
+        if retrain:
+            print("[INFO] Start Retrain...")
+            print("[INFO] Loading model...")
+            self.ckpt_gen_manager.restore_or_initialize()
+            self.ckpt_disc_manager.restore_or_initialize()
+            print("[INFO] DONE!")
 
     def train_step(self):
 
@@ -174,7 +182,7 @@ if __name__ == '__main__':
         train = Trainer(real_face, cartoon_faces,
                         real_scenery, cartoon_scenery,
                         image_shape=128, epochs=5,
-                        batch_size=6, channels=8, use_parallel=True)
+                        batch_size=6, channels=8, use_parallel=True, retrain=True)
     else:
         real_face = "/content/drive/MyDrive/dataset/faces"
         cartoon_faces = "/content/drive/MyDrive/dataset/cartoon_faces"

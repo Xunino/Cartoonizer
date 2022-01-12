@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from sklearn.utils import shuffle
 
 
 class DataLoader:
@@ -15,7 +16,8 @@ class DataLoader:
     def run(self):
         assert len(self.filename_list) != 0
         batch_data = []
-        batch = self.filename_list[self.next_batch: self.next_batch + self.batch_size]
+        filename_list = shuffle(self.filename_list, random_state=42)
+        batch = filename_list[self.next_batch: self.next_batch + self.batch_size]
         for i in range(len(batch)):
             image = cv2.imread(batch[i])
             image = cv2.resize(image, dsize=(self.image_shape, self.image_shape), interpolation=cv2.INTER_AREA)
