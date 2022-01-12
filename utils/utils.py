@@ -6,9 +6,8 @@ from joblib import Parallel, delayed
 from skimage.color import label2rgb
 from skimage.segmentation import slic, felzenszwalb
 from skimage.color import rgb2hsv, rgb2lab, rgb2gray
+from .structure import HierarchicalGrouping
 import os
-
-from utils.structure import HierarchicalGrouping
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -54,9 +53,13 @@ def write_batch_image(image, save_dir, name, n):
     cv2.imwrite(fused_dir, fused_image.astype(np.uint8))
 
 
-def selective_adacolor(batch_image, seg_num=200, power=1):
-    num_job = np.shape(batch_image)[0]
-    batch_out = Parallel(n_jobs=num_job)(delayed(color_ss_map)(image, seg_num, power) for image in batch_image)
+def selective_adacolor(batch_image, seg_num=200, power=1, num_job=2, use_parallel=False):
+    if not use_parallel:
+        batch_out = []
+        for image in batch_image.numpy():
+            batch_out.append(color_ss_map(image))
+    else:
+        batch_out = Parallel(n_jobs=num_job)(delayed(color_ss_map)(image, seg_num, power) for image in batch_image.numpy())
     return np.array(batch_out)
 
 
@@ -79,7 +82,7 @@ def simple_superpixel(batch_image, seg_num=200, sigma=1.2, use_parallel=False, n
 def color_ss_map(image, seg_num=200, power=1,
                  color_space='Lab', k=10, sim_strategy='CTSF'):
     img_seg = felzenszwalb(image, scale=k, sigma=0.8, min_size=100)
-    img_cvtcolor = label2rgb(img_seg, image, kind='mix')
+    img_cvtcolor = label2rgb(img_seg, image, kind='avg')
     img_cvtcolor = switch_color_space(img_cvtcolor, color_space)
     S = HierarchicalGrouping(img_cvtcolor, img_seg, sim_strategy)
     S.build_regions()
@@ -92,7 +95,7 @@ def color_ss_map(image, seg_num=200, power=1,
         S.remove_similarities(i, j)
         S.calculate_similarity_for_new_region()
 
-    image = label2rgb(S.img_seg, image, kind='mix')
+    image = label2rgb(S.img_seg, image, kind='avg')
     image = (image + 1) / 2
     image = image ** power
     image = image / np.max(image)
