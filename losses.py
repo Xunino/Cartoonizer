@@ -18,10 +18,9 @@ class VGG19Content:
                                       green - VGG_MEAN[1], red - VGG_MEAN[2]])
 
         back_bone = VGG19(include_top=False, weights="imagenet", input_shape=shape)
-        for layer in back_bone.layers:
-            layer.trainable = False
-
         model = Model(inputs=back_bone.input, outputs=back_bone.get_layer("block4_pool").output)
+        for layer in model.layers:
+            layer.trainable = False
 
         return model(x)
 
