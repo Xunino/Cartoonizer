@@ -150,9 +150,9 @@ class Trainer:
                     pbar.set_description("Epoch {} || g_loss: {} || d_loss: {}".format(epoch,
                                                                                        g_loss,
                                                                                        d_loss))
-                    if iterator % 10 == 0 or iterator % 2 == 0:
+                    if iterator % 2 == 0:
                         results = self.generator(input_photo)
-                        results = guided_filter(results, output, r=1)
+                        results = guided_filter(input_photo, results, r=1)
                         write_batch_image(results, os.path.join(HOME, "test_images"), f"{iterator}_result.jpg", 1)
 
                     if epoch % 5 == 0:
