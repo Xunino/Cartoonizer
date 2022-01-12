@@ -150,7 +150,7 @@ class Trainer:
                     vgg_output = self.high_level_features(output)
                     # Superpixel images
                     if self.use_enhance:
-                        superpixel_out = selective_adacolor(output, seg_num=200)
+                        superpixel_out = selective_adacolor(output, seg_num=200, use_parallel=self.use_parallel)
                     else:
                         superpixel_out = simple_superpixel(output, use_parallel=self.use_parallel)
 
