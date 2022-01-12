@@ -4,8 +4,11 @@ import numpy as np
 import tensorflow as tf
 from joblib import Parallel, delayed
 from skimage.color import label2rgb
-from skimage.segmentation import slic
+from skimage.segmentation import slic, felzenszwalb
+from skimage.color import rgb2hsv, rgb2lab, rgb2gray
 import os
+
+from utils.structure import HierarchicalGrouping
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -51,6 +54,12 @@ def write_batch_image(image, save_dir, name, n):
     cv2.imwrite(fused_dir, fused_image.astype(np.uint8))
 
 
+def selective_adacolor(batch_image, seg_num=200, power=1):
+    num_job = np.shape(batch_image)[0]
+    batch_out = Parallel(n_jobs=num_job)(delayed(color_ss_map)(image, seg_num, power) for image in batch_image)
+    return np.array(batch_out)
+
+
 def simple_superpixel(batch_image, seg_num=200, sigma=1.2, use_parallel=False, num_job=2):
     def process_slic(image):
         seg_label = slic(image, n_segments=seg_num, sigma=sigma,
@@ -65,6 +74,63 @@ def simple_superpixel(batch_image, seg_num=200, sigma=1.2, use_parallel=False, n
     else:
         batch_out = Parallel(n_jobs=num_job)(delayed(process_slic)(image) for image in batch_image.numpy())
     return np.array(batch_out)
+
+
+def color_ss_map(image, seg_num=200, power=1,
+                 color_space='Lab', k=10, sim_strategy='CTSF'):
+    img_seg = felzenszwalb(image, scale=k, sigma=0.8, min_size=100)
+    img_cvtcolor = label2rgb(img_seg, image, kind='mix')
+    img_cvtcolor = switch_color_space(img_cvtcolor, color_space)
+    S = HierarchicalGrouping(img_cvtcolor, img_seg, sim_strategy)
+    S.build_regions()
+    S.build_region_pairs()
+
+    # Start hierarchical grouping
+    while S.num_regions() > seg_num:
+        i, j = S.get_highest_similarity()
+        S.merge_region(i, j)
+        S.remove_similarities(i, j)
+        S.calculate_similarity_for_new_region()
+
+    image = label2rgb(S.img_seg, image, kind='mix')
+    image = (image + 1) / 2
+    image = image ** power
+    image = image / np.max(image)
+    image = image * 2 - 1
+
+    return image
+
+
+def switch_color_space(img, target):
+    """
+        RGB to target color space conversion.
+        I: the intensity (grey scale), Lab, rgI: the rg channels of
+        normalized RGB plus intensity, HSV, H: the Hue channel H from HSV
+    """
+
+    if target == 'HSV':
+        return rgb2hsv(img)
+
+    elif target == 'Lab':
+        return rgb2lab(img)
+
+    elif target == 'I':
+        return rgb2gray(img)
+
+    elif target == 'rgb':
+        img = img / np.sum(img, axis=0)
+        return img
+
+    elif target == 'rgI':
+        img = img / np.sum(img, axis=0)
+        img[:, :, 2] = rgb2gray(img)
+        return img
+
+    elif target == 'H':
+        return rgb2hsv(img)[:, :, 0]
+
+    else:
+        raise "{} is not suported.".format(target)
 
 
 def color_shift(image1, image2, mode='uniform'):

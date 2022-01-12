@@ -7,7 +7,7 @@ from moduls.discriminator_spectral_norm import DiscriminatorSN
 from utils.guided_fillter import guided_filter
 from dataloader import DataLoader
 from losses import VGG19Content, lsgan_loss, content_or_structure_loss, total_variation_loss, INCEPTIONContent
-from utils.utils import write_batch_image, color_shift, simple_superpixel, get_list_images
+from utils.utils import write_batch_image, color_shift, simple_superpixel, get_list_images, selective_adacolor
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 HOME = os.getcwd()
@@ -25,6 +25,7 @@ class Trainer:
                  learning_rate=2e-4,
                  channels=32,
                  batch_size=32,
+                 use_enhance=True,
                  use_parallel=True,
                  retrain=False):
         self.photo_face_path = photo_face_path
@@ -38,6 +39,7 @@ class Trainer:
         self.batch_size = batch_size
         self.channels = channels
         self.use_parallel = use_parallel
+        self.use_enhance = use_enhance
 
         self.high_level_features = INCEPTIONContent()
 
@@ -147,7 +149,11 @@ class Trainer:
                     # fake images
                     vgg_output = self.high_level_features(output)
                     # Superpixel images
-                    superpixel_out = simple_superpixel(output, use_parallel=self.use_parallel)
+                    if self.use_enhance:
+                        superpixel_out = selective_adacolor(output, seg_num=200, power=1.2)
+                    else:
+                        superpixel_out = simple_superpixel(output, use_parallel=self.use_parallel)
+
                     vgg_superpixel = self.high_level_features(superpixel_out)
 
                     """
@@ -217,8 +223,8 @@ if __name__ == '__main__':
         cartoon_scenery = "/content/drive/MyDrive/dataset/scenery_cartoon"
         train = Trainer(real_face, cartoon_faces,
                         real_scenery, cartoon_scenery,
-                        image_shape=256, epochs=5,
-                        batch_size=16, channels=8, use_parallel=False)
+                        image_shape=256, epochs=50,
+                        batch_size=12, channels=32, use_parallel=False)
 
     train.train_step()
     """
