@@ -1,5 +1,5 @@
 import tensorflow as tf
-from spectral_norm_layer import conv_spectral_norm
+from .spectral_norm_layer import conv_spectral_norm
 from tensorflow.keras.layers import LeakyReLU, Dense, BatchNormalization, Conv2D
 from tensorflow.keras.models import Model
 
