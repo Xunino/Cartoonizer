@@ -59,23 +59,26 @@ def selective_adacolor(batch_image, seg_num=200, power=1, num_job=2, use_paralle
         for image in batch_image.numpy():
             batch_out.append(color_ss_map(image))
     else:
-        batch_out = Parallel(n_jobs=num_job)(delayed(color_ss_map)(image, seg_num, power) for image in batch_image.numpy())
+        batch_out = Parallel(n_jobs=num_job)(
+            delayed(color_ss_map)(image, seg_num, power) for image in batch_image.numpy())
     return np.array(batch_out)
 
 
-def simple_superpixel(batch_image, seg_num=200, sigma=1.2, use_parallel=False, num_job=2):
-    def process_slic(image):
-        seg_label = slic(image, n_segments=seg_num, sigma=sigma,
-                         compactness=10, convert2lab=True)
-        image = label2rgb(seg_label, image, kind='avg')
-        return image
+def process_slic(image, seg_num=200, sigma=1.2):
+    seg_label = slic(image, n_segments=seg_num, sigma=sigma,
+                     compactness=10, convert2lab=True)
+    image = label2rgb(seg_label, image, kind='avg')
+    return image
 
+
+def simple_superpixel(batch_image, seg_num=200, sigma=1.2, use_parallel=False, num_job=2):
     if not use_parallel:
         batch_out = []
         for image in batch_image.numpy():
-            batch_out.append(process_slic(image))
+            batch_out.append(process_slic(image, seg_num, sigma))
     else:
-        batch_out = Parallel(n_jobs=num_job)(delayed(process_slic)(image) for image in batch_image.numpy())
+        batch_out = Parallel(n_jobs=num_job)(
+            delayed(process_slic)(image, seg_num, sigma) for image in batch_image.numpy())
     return np.array(batch_out)
 
 
@@ -151,10 +154,3 @@ def color_shift(image1, image2, mode='uniform'):
     output1 = (b_weight * b1 + g_weight * g1 + r_weight * r1) / (b_weight + g_weight + r_weight)
     output2 = (b_weight * b2 + g_weight * g2 + r_weight * r2) / (b_weight + g_weight + r_weight)
     return output1, output2
-
-
-if __name__ == '__main__':
-    sample_1 = tf.random.uniform(shape=(1, 256, 256, 3), maxval=1.)
-    sample_2 = tf.random.uniform(shape=(1, 256, 256, 3), maxval=1.)
-    out_1, out_2 = simple_superpixel(sample_1)
-    print(out_1.shape)

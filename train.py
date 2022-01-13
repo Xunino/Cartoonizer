@@ -99,7 +99,7 @@ class Trainer:
                                                image_shape=self.image_shape,
                                                batch_size=self.batch_size)
 
-            min_len = min(input_photo_face.__len__(), input_cartoon_face.__len__(), input_photo_scenery.__len__(),
+            min_len = max(input_photo_face.__len__(), input_cartoon_face.__len__(), input_photo_scenery.__len__(),
                           input_cartoon_scenery.__len__()) // self.batch_size + 1
             pbar = tqdm(range(1, min_len + 1))
             for iterator in pbar:
