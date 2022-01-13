@@ -207,7 +207,7 @@ class Trainer:
 
 
 if __name__ == '__main__':
-    pc = True
+    pc = False
     if pc:
         real_face = "dataset/face_photo"
         cartoon_faces = "dataset/face_cartoon"
@@ -225,6 +225,6 @@ if __name__ == '__main__':
         train = Trainer(real_face, cartoon_faces,
                         real_scenery, cartoon_scenery,
                         image_shape=256, epochs=50,
-                        batch_size=20, channels=16, use_parallel=True)
+                        batch_size=16, channels=16, use_parallel=True)
 
     train.train_step()
