@@ -5,8 +5,7 @@ import numpy as np
 def tf_box_filter(x, r):
     ch = tf.shape(x)[-1]
     weight = 1 / ((2 * r + 1) ** 2)  # r=1 -> weight = 1/9
-    box_kernel = weight * np.ones((2 * r + 1, 2 * r + 1, ch, 1))  # r=1 -> box_kernel: shape[3, 3, 3, 1]
-    box_kernel = np.array(box_kernel).astype(np.float32)
+    box_kernel = weight * tf.ones((2 * r + 1, 2 * r + 1, ch, 1), dtype=tf.float32)  # r=1 -> box_kernel: shape[3, 3, 3, 1]
     output = tf.nn.depthwise_conv2d(x, box_kernel, [1, 1, 1, 1], 'SAME')
     return output
 
