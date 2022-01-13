@@ -150,9 +150,10 @@ class Trainer:
                     vgg_output = self.high_level_features(output)
                     # Superpixel images
                     if self.use_enhance:
-                        superpixel_out = selective_adacolor(output, seg_num=200, use_parallel=self.use_parallel)
+                        superpixel_out = selective_adacolor(output, seg_num=200, use_parallel=self.use_parallel,
+                                                            num_job=4)
                     else:
-                        superpixel_out = simple_superpixel(output, use_parallel=self.use_parallel)
+                        superpixel_out = simple_superpixel(output, use_parallel=self.use_parallel, num_job=4)
 
                     vgg_superpixel = self.high_level_features(superpixel_out)
 
@@ -189,9 +190,9 @@ class Trainer:
                     pbar.set_description("Epoch {} || g_loss: {} || d_loss: {}".format(epoch,
                                                                                        g_loss,
                                                                                        d_loss))
-                    if iterator % 2 == 0:
+                    if iterator % 200 == 0:
                         results = self.generator(input_photo)
-                        results = guided_filter(input_photo, results, r=1)
+                        results = guided_filter(input_photo, results, r=4)
                         saved_test = os.path.join(HOME, "test_images")
                         os.makedirs(saved_test, exist_ok=True)
                         write_batch_image(results, saved_test, f"{iterator}_result.jpg", 1)
@@ -224,7 +225,7 @@ if __name__ == '__main__':
         train = Trainer(real_face, cartoon_faces,
                         real_scenery, cartoon_scenery,
                         image_shape=256, epochs=50,
-                        batch_size=12, channels=32, use_parallel=False)
+                        batch_size=20, channels=16, use_parallel=False)
 
     train.train_step()
     """
