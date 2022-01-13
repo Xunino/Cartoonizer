@@ -27,7 +27,8 @@ class Trainer:
                  batch_size=32,
                  use_enhance=True,
                  use_parallel=True,
-                 retrain=False):
+                 retrain=False,
+                 use_tpu=False):
         self.photo_face_path = photo_face_path
         self.cartoon_face_path = cartoon_face_path
 
@@ -41,19 +42,41 @@ class Trainer:
         self.use_parallel = use_parallel
         self.use_enhance = use_enhance
 
-        self.high_level_features = VGG19Content()
+        # Using TPU in colaboratory
+        if use_tpu:
+            self.resolver = tf.distribute.cluster_resolver.TPUClusterResolver(tpu='')
+            tf.config.experimental_connect_to_cluster(self.resolver)
+            # This is the TPU initialization code that has to be at the beginning.
+            tf.tpu.experimental.initialize_tpu_system(self.resolver)
+            print("All devices: ", tf.config.list_logical_devices('TPU'))
 
-        # GAN Model
-        self.generator = Unet(channels)
+            self.high_level_features = VGG19Content()
 
-        # Discriminator Model
-        self.disc_sn = DiscriminatorSN(self.channels)
+            # GAN Model
+            self.generator = Unet(channels)
 
-        # GAN Optimizer
-        self.g_optimizer = Adam(learning_rate, beta_1=0.5, beta_2=0.99)
+            # Discriminator Model
+            self.disc_sn = DiscriminatorSN(self.channels)
 
-        # Discriminator Optimizer
-        self.d_optimizer = Adam(learning_rate, beta_1=0.5, beta_2=0.99)
+            # GAN Optimizer
+            self.g_optimizer = Adam(learning_rate, beta_1=0.5, beta_2=0.99)
+
+            # Discriminator Optimizer
+            self.d_optimizer = Adam(learning_rate, beta_1=0.5, beta_2=0.99)
+        else:
+            self.high_level_features = VGG19Content()
+
+            # GAN Model
+            self.generator = Unet(channels)
+
+            # Discriminator Model
+            self.disc_sn = DiscriminatorSN(self.channels)
+
+            # GAN Optimizer
+            self.g_optimizer = Adam(learning_rate, beta_1=0.5, beta_2=0.99)
+
+            # Discriminator Optimizer
+            self.d_optimizer = Adam(learning_rate, beta_1=0.5, beta_2=0.99)
 
         # Checkpoint
         self.saved_gen_weights = os.path.join(HOME, saved_weights, "generator/")
