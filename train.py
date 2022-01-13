@@ -41,7 +41,7 @@ class Trainer:
         self.use_parallel = use_parallel
         self.use_enhance = use_enhance
 
-        self.high_level_features = INCEPTIONContent()
+        self.high_level_features = VGG19Content()
 
         # GAN Model
         self.generator = Unet(channels)
@@ -196,9 +196,9 @@ class Trainer:
                         os.makedirs(saved_test, exist_ok=True)
                         write_batch_image(results, saved_test, f"{iterator}_result.jpg", 1)
 
-                    if epoch % 5 == 0:
-                        self.ckpt_gen_manager.save()
-                        self.ckpt_disc_manager.save()
+            if epoch % 5 == 0:
+                self.ckpt_gen_manager.save()
+                self.ckpt_disc_manager.save()
 
             print("Epoch {} || g_loss_total: {} || d_loss_total: {}".format(epoch,
                                                                             g_loss_total / min_len,
