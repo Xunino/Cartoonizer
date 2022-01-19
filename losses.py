@@ -11,7 +11,7 @@ class VGG19Content:
         pass
 
     def __call__(self, x, *args, **kwargs):
-        h, w, c = tf.shape(x)[1:4]
+        h, w, c = x.get_shape()[1], x.get_shape()[2], x.get_shape()[3]
         shape = (h, w, c)
         rgb_scaled = (x + 1) * 127.5
         blue, green, red = tf.split(axis=3, num_or_size_splits=3, value=rgb_scaled)

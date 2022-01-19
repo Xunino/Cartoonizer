@@ -56,12 +56,12 @@ def write_batch_image(image, save_dir, name, n):
 def selective_adacolor(batch_image, seg_num=200, power=1, num_job=2, use_parallel=False):
     if not use_parallel:
         batch_out = []
-        for image in batch_image.numpy():
+        for image in batch_image:
             batch_out.append(color_ss_map(image))
     else:
         batch_out = Parallel(n_jobs=num_job)(
-            delayed(color_ss_map)(image, seg_num, power) for image in batch_image.numpy())
-    return np.array(batch_out)
+            delayed(color_ss_map)(np.asarray(image), seg_num, power) for image in batch_image)
+    return np.asarray(batch_out)
 
 
 def process_slic(image, seg_num=200, sigma=1.2):
@@ -74,12 +74,12 @@ def process_slic(image, seg_num=200, sigma=1.2):
 def simple_superpixel(batch_image, seg_num=200, sigma=1.2, use_parallel=False, num_job=2):
     if not use_parallel:
         batch_out = []
-        for image in batch_image.numpy():
+        for image in batch_image:
             batch_out.append(process_slic(image, seg_num, sigma))
     else:
         batch_out = Parallel(n_jobs=num_job)(
-            delayed(process_slic)(image, seg_num, sigma) for image in batch_image.numpy())
-    return np.array(batch_out)
+            delayed(process_slic)(image, seg_num, sigma) for image in batch_image)
+    return np.asarray(batch_out)
 
 
 def color_ss_map(image, seg_num=200, power=1,

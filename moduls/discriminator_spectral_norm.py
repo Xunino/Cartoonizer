@@ -49,22 +49,27 @@ class DiscriminatorBN(Model):
         super(DiscriminatorBN, self).__init__()
         self.channels = channels
 
-        self.conv_bn_1_1 = Conv2D(channels, kernel_size=(1, 1), strides=2, padding="same")
-        self.conv_bn_1_2 = Conv2D(channels, kernel_size=(1, 1), padding="same")
+        self.conv_bn_1_1 = ConvBN(channels, kernel_size=(3, 3), strides=2, padding="same")
+        self.conv_bn_1_2 = ConvBN(channels, kernel_size=(3, 3), padding="same")
 
-        self.conv_bn_2_1 = Conv2D(channels * 2, kernel_size=(1, 1), strides=2, padding="same")
-        self.conv_bn_2_2 = Conv2D(channels * 2, kernel_size=(1, 1), padding="same")
+        self.conv_bn_2_1 = ConvBN(channels * 2, kernel_size=(3, 3), strides=2, padding="same")
+        self.conv_bn_2_2 = ConvBN(channels * 2, kernel_size=(3, 3), padding="same")
 
-        self.conv_bn_3_1 = Conv2D(channels * 4, kernel_size=(1, 1), strides=2, padding="same")
-        self.conv_bn_3_2 = Conv2D(channels * 4, kernel_size=(1, 1), padding="same")
+        self.conv_bn_3_1 = ConvBN(channels * 4, kernel_size=(3, 3), strides=2, padding="same")
+        self.conv_bn_3_2 = ConvBN(channels * 4, kernel_size=(3, 3), padding="same")
 
         self.conv_out = Conv2D(1, kernel_size=(1, 1), padding="same")
         self.dense = Dense(1)
 
     def __call__(self, x, patch=True, *args, **kwargs):
-        x = self.conv_bn_1_2(self.conv_bn_1_1(x))
-        x = self.conv_bn_2_2(self.conv_bn_2_1(x))
-        x = self.conv_bn_3_2(self.conv_bn_3_1(x))
+        x = self.conv_bn_1_1(x)
+        x = self.conv_bn_1_2(x)
+
+        x = self.conv_bn_2_1(x)
+        x = self.conv_bn_2_2(x)
+
+        x = self.conv_bn_3_1(x)
+        x = self.conv_bn_3_2(x)
 
         if patch:
             x = self.conv_out(x)
