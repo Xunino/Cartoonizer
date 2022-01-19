@@ -3,9 +3,9 @@ import tensorflow as tf
 from tqdm import tqdm
 from tensorflow.keras.optimizers import Adam
 from moduls.unet_model import Unet
-from moduls.discriminator_spectral_norm import DiscriminatorSN
+from moduls.discriminator_spectral_norm import DiscriminatorSN, DiscriminatorBN
 from utils.guided_fillter import guided_filter
-from dataloader import DataLoader, DataLoaderWithTF
+from dataloader import DataLoader
 from losses import VGG19Content, lsgan_loss, content_or_structure_loss, total_variation_loss, INCEPTIONContent
 from utils.utils import write_batch_image, color_shift, simple_superpixel, get_list_images, selective_adacolor
 
@@ -47,7 +47,7 @@ class Trainer:
         self.generator = Unet(channels)
 
         # Discriminator Model
-        self.disc_sn = DiscriminatorSN(self.channels)
+        self.discriminator = DiscriminatorBN(channels)
 
         # GAN Optimizer
         self.g_optimizer = Adam(learning_rate, beta_1=0.5, beta_2=0.99)
@@ -57,23 +57,17 @@ class Trainer:
 
         # Checkpoint
         self.saved_gen_weights = os.path.join(HOME, saved_weights, "generator/")
-        self.saved_disc_weights = os.path.join(HOME, saved_weights, "discriminator/")
         os.makedirs(self.saved_gen_weights, exist_ok=True)
-        os.makedirs(self.saved_disc_weights, exist_ok=True)
 
         ckpt_gen = tf.train.Checkpoint(generator=self.generator,
                                        optimizer=self.g_optimizer)
-        ckpt_disc = tf.train.Checkpoint(generator=self.disc_sn,
-                                        optimizer=self.d_optimizer)
 
         self.ckpt_gen_manager = tf.train.CheckpointManager(ckpt_gen, self.saved_gen_weights, max_to_keep=2)
-        self.ckpt_disc_manager = tf.train.CheckpointManager(ckpt_disc, self.saved_disc_weights, max_to_keep=2)
 
         if retrain:
             print("[INFO] Start Retrain...")
             print("[INFO] Loading model...")
             self.ckpt_gen_manager.restore_or_initialize()
-            self.ckpt_disc_manager.restore_or_initialize()
             print("[INFO] DONE!")
 
     def train_step(self):
@@ -84,20 +78,20 @@ class Trainer:
             d_loss_total = 0
 
             # Photo face and cartoon face
-            input_photo_face = DataLoaderWithTF(get_list_images(self.photo_face_path),
-                                                image_shape=self.image_shape,
-                                                batch_size=self.batch_size)
-            input_cartoon_face = DataLoaderWithTF(get_list_images(self.cartoon_face_path),
-                                                  image_shape=self.image_shape,
-                                                  batch_size=self.batch_size)
+            input_photo_face = DataLoader(get_list_images(self.photo_face_path),
+                                          image_shape=self.image_shape,
+                                          batch_size=self.batch_size)
+            input_cartoon_face = DataLoader(get_list_images(self.cartoon_face_path),
+                                            image_shape=self.image_shape,
+                                            batch_size=self.batch_size)
 
             # Photo scenery and cartoon scenery
-            input_photo_scenery = DataLoaderWithTF(get_list_images(self.photo_scenery_path),
-                                                   image_shape=self.image_shape,
-                                                   batch_size=self.batch_size)
-            input_cartoon_scenery = DataLoaderWithTF(get_list_images(self.cartoon_scenery_path),
-                                                     image_shape=self.image_shape,
-                                                     batch_size=self.batch_size)
+            input_photo_scenery = DataLoader(get_list_images(self.photo_scenery_path),
+                                             image_shape=self.image_shape,
+                                             batch_size=self.batch_size)
+            input_cartoon_scenery = DataLoader(get_list_images(self.cartoon_scenery_path),
+                                               image_shape=self.image_shape,
+                                               batch_size=self.batch_size)
 
             min_len = max(input_photo_face.__len__(), input_cartoon_face.__len__(), input_photo_scenery.__len__(),
                           input_cartoon_scenery.__len__()) // self.batch_size + 1
@@ -125,7 +119,7 @@ class Trainer:
                     blur_cartoon = guided_filter(input_cartoon, input_cartoon, r=5, eps=2e-1)
 
                     # Loss surface using disc model
-                    d_loss_blur, g_loss_blur = lsgan_loss(self.disc_sn,
+                    d_loss_blur, g_loss_blur = lsgan_loss(self.discriminator,
                                                           blur_cartoon, blur_fake,
                                                           patch=True)
                     """
@@ -135,7 +129,7 @@ class Trainer:
                     gray_fake, gray_cartoon = color_shift(output, input_cartoon)
 
                     # Loss texture using disc model
-                    d_loss_gray, g_loss_gray = lsgan_loss(self.disc_sn,
+                    d_loss_gray, g_loss_gray = lsgan_loss(self.discriminator,
                                                           gray_cartoon, gray_fake,
                                                           patch=True)
                     """
@@ -184,8 +178,9 @@ class Trainer:
                     self.g_optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
 
                     # Discriminator
-                    gradients_of_discriminator = disc_tape.gradient(d_loss, self.disc_sn.trainable_variables)
-                    self.d_optimizer.apply_gradients(zip(gradients_of_discriminator, self.disc_sn.trainable_variables))
+                    gradients_of_discriminator = disc_tape.gradient(d_loss, self.discriminator.trainable_variables)
+                    self.d_optimizer.apply_gradients(
+                        zip(gradients_of_discriminator, self.discriminator.trainable_variables))
 
                     pbar.set_description("Epoch {} || g_loss: {} || d_loss: {}".format(epoch,
                                                                                        g_loss,
@@ -199,7 +194,6 @@ class Trainer:
 
             if epoch % 5 == 0:
                 self.ckpt_gen_manager.save()
-                self.ckpt_disc_manager.save()
 
             print("Epoch {} || g_loss_total: {} || d_loss_total: {}".format(epoch,
                                                                             g_loss_total / min_len,
@@ -207,7 +201,7 @@ class Trainer:
 
 
 if __name__ == '__main__':
-    pc = False
+    pc = True
     if pc:
         real_face = "dataset/face_photo"
         cartoon_faces = "dataset/face_cartoon"
